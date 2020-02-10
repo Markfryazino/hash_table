@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/HashMap.h
+iostream
+-
+vector
+-
+list
+-
+stdexcept
+-
+
+/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/main.cpp
+HashMap.h
+/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/HashMap.h
+iostream
+-
+cstdlib
+-
+functional
+-
+stdexcept
+-
+map
+-
+list
+-
+

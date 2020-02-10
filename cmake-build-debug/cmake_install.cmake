@@ -1,4 +1,4 @@
-# Install script for directory: /home/data_sapiens/programs/C++/long_contest_3/A_hashmap
+# Install script for directory: /home/data_sapiens/programs/C++/A_hashmap
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/data_sapiens/programs/C++/A_hashmap/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

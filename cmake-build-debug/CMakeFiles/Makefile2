@@ -44,10 +44,10 @@ RM = /home/data_sapiens/clion/clion-2019.2.5/bin/cmake/linux/bin/cmake -E remove
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/data_sapiens/programs/C++/long_contest_3/A_hashmap
+CMAKE_SOURCE_DIR = /home/data_sapiens/programs/C++/A_hashmap
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/data_sapiens/programs/C++/long_contest_3/A_hashmap/cmake-build-debug
+CMAKE_BINARY_DIR = /home/data_sapiens/programs/C++/A_hashmap/cmake-build-debug
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -74,14 +74,14 @@ preinstall:
 CMakeFiles/A_hashmap.dir/all:
 	$(MAKE) -f CMakeFiles/A_hashmap.dir/build.make CMakeFiles/A_hashmap.dir/depend
 	$(MAKE) -f CMakeFiles/A_hashmap.dir/build.make CMakeFiles/A_hashmap.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target A_hashmap"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/data_sapiens/programs/C++/A_hashmap/cmake-build-debug/CMakeFiles --progress-num=1,2 "Built target A_hashmap"
 .PHONY : CMakeFiles/A_hashmap.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/A_hashmap.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/data_sapiens/programs/C++/long_contest_3/A_hashmap/cmake-build-debug/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/data_sapiens/programs/C++/A_hashmap/cmake-build-debug/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/A_hashmap.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/data_sapiens/programs/C++/long_contest_3/A_hashmap/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/data_sapiens/programs/C++/A_hashmap/cmake-build-debug/CMakeFiles 0
 .PHONY : CMakeFiles/A_hashmap.dir/rule
 
 # Convenience name for target.

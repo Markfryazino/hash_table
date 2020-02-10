@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/main.cpp" "/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/cmake-build-debug/CMakeFiles/A_hashmap.dir/main.cpp.o"
+  "/home/data_sapiens/programs/C++/A_hashmap/main.cpp" "/home/data_sapiens/programs/C++/A_hashmap/cmake-build-debug/CMakeFiles/A_hashmap.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

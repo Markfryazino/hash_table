@@ -52,15 +52,17 @@ private:
         std::list<std::pair<KeyType, ValueType>> temp_list;
         // Просто присвоить temp_list = storage нельзя, потому что возникают проблемы с
         // const int -> int, приходится вот так
-        for (auto &p : storage)
+        for (auto &p : storage) {
             temp_list.push_back(std::make_pair(p.first, p.second));
+        }
 
         storage.clear();
         table.clear();
         initializeTable(capacity * inv_alpha);
         numElements = 0;
-        for (auto &el : temp_list)
+        for (auto &el : temp_list) {
             insert(el);
+        }
         temp_list.clear();
     }
 
@@ -88,17 +90,19 @@ public:
     HashMap(std::initializer_list<std::pair<KeyType, ValueType>> list,
             Hash hasherObj = Hash()) : hasher(hasherObj) {
         initializeTable();
-        for (auto &el : list)
+        for (auto &el : list) {
             insert(el);
+        }
     }
 
     // Проверям, есть ли в таблице такой ключ, если да, то ничего не делаем, иначе
     // добавляем и делаем rehashing, если надо.
     void insert(std::pair<KeyType, ValueType> obj) {
         int hashed = applyHash(obj.first);
-        for (auto &el : table[hashed])
+        for (auto &el : table[hashed]) {
             if (el->first == obj.first)
                 return;
+        }
 
         push_back(obj, hashed);
         ++numElements;
@@ -108,13 +112,14 @@ public:
     void erase(KeyType toDel) {
         int hashed = applyHash(toDel);
         auto iter = table[hashed].begin();
-        for (; iter != table[hashed].end(); ++iter)
+        for (; iter != table[hashed].end(); ++iter) {
             if ((*iter)->first == toDel) {
                 storage.erase(*iter);
                 table[hashed].erase(iter);
                 --numElements;
                 return;
             }
+        }
 
     }
 
@@ -136,18 +141,20 @@ public:
 
     iterator find(KeyType key) {
         int hashed = applyHash(key);
-        for (auto &el : table[hashed])
+        for (auto &el : table[hashed]) {
             if (el->first == key)
                 return iterator(el);
+        }
 
         return end();
     }
 
     const_iterator find(KeyType key) const {
         int hashed = applyHash(key);
-        for (auto &el : table[hashed])
+        for (auto &el : table[hashed]) {
             if (el->first == key)
                 return el;
+        }
 
         return end();
     }

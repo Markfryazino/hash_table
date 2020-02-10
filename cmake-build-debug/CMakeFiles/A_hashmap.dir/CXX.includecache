@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/HashMap.h
+/home/data_sapiens/programs/C++/A_hashmap/hash_map.h
 iostream
 -
 vector
@@ -16,9 +16,9 @@ list
 stdexcept
 -
 
-/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/main.cpp
-HashMap.h
-/home/data_sapiens/programs/C++/long_contest_3/A_hashmap/HashMap.h
+/home/data_sapiens/programs/C++/A_hashmap/main.cpp
+hash_map.h
+/home/data_sapiens/programs/C++/A_hashmap/hash_map.h
 iostream
 -
 cstdlib

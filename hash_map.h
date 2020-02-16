@@ -6,64 +6,52 @@
 #include <stdexcept>
 
 /**
- * Используем разрешение коллизий методом цепочек.
- * Структура таблицы выглядит следующим образом: есть std::list, который содержит пары
- * "ключ, значение", их мы в него добавляем как попало (поле storage). Также есть вектор
- * размера capacity из списков, каждый элемент которых - это итератор списка storage (поле table).
- * Соответственно, когда мы хотим добавить элемент, мы кладем его в storage, а указывающий на него
- * (то есть на конец storage) итератор добавляем в соответствующий ключу список в table.
- * Кроме того, когда размер таблицы становится больше capacity * alpha, мы выполняем rehashing.
-*/
+ * We handle collisions by chain method.
+ * Table structure is the following: there is an std::list containing 'key, value' pairs, which are added
+ * there in arbitrary order (that is storage_ field). Apart from that, there is a vector of lists, each element of those
+ * being an iterator of storage_ (table_ field). So, in order to add a new element we push it in storage_, while
+ * an iterator pointing on this new element is put in one of the lists from table_. Additionally, we perform rehashing when
+ * the table size exceeds capacity_ * alpha.
+ */
 
 template<class KeyType, class ValueType, class Hash = std::hash<KeyType> >
 class HashMap {
 private:
-    std::list<std::pair<const KeyType, ValueType>> storage;
-    Hash hasher;
-    int inv_alpha = 2;
-    int capacity;
-    std::vector<std::list<typename std::list<std::pair<const KeyType, ValueType>>::iterator>> table;
-    int numElements = 0;
+    std::list<std::pair<const KeyType, ValueType>> storage_;
+    Hash hasher_;
+    const int32_t kInvAlpha = 2;
+    int32_t capacity_;
+    std::vector<std::list<typename std::list<std::pair<const KeyType, ValueType>>::iterator>> table_;
+    int32_t num_elements_ = 0;
 
-    int applyHash(KeyType obj) const {
-        return hasher(obj) % capacity;
+    int32_t ApplyHash(const KeyType obj) const {
+        return hasher_(obj) % capacity_;
     }
 
-    void initializeTable(int _capacity = 16) {
-        capacity = _capacity;
-        table = std::vector<std::list<typename
-                std::list<std::pair<const KeyType, ValueType>>::iterator>>(capacity);
+    void InitializeTable(const int32_t capacity = 16) {
+        capacity_ = capacity;
+        table_ = std::vector<std::list<typename std::list<std::pair<const KeyType, ValueType>>::iterator>>(capacity_);
     }
 
-    // Функция, которая вызывается, когда мы хотим добавить элемент и точно знаем, что
-    // его ключ в таблице раньше не встречался.
-    void push_back(std::pair<KeyType, ValueType> obj, int hashed) {
-        storage.push_back(obj);
-        auto it = storage.end();
-        --it;
-        table[hashed].push_back(it);
+    // Method that is called when a new element, guaranteed not be in the table, is added.
+    void push_back(const std::pair<KeyType, ValueType> obj) {
+        int32_t hashed = ApplyHash(obj.first);
+        storage_.push_back(obj);
+        auto it = std::prev(storage_.end());
+        table_[hashed].push_back(it);
     }
 
-    // Выполняем rehashing
+    // Performing rehashing
     void update() {
-        if (numElements * inv_alpha < capacity)
+        if (num_elements_ * kInvAlpha < capacity_)
             return;
 
-        std::list<std::pair<KeyType, ValueType>> temp_list;
-        // Просто присвоить temp_list = storage нельзя, потому что возникают проблемы с
-        // const int -> int, приходится вот так
-        for (auto &p : storage) {
-            temp_list.push_back(std::make_pair(p.first, p.second));
+        table_.clear();
+        capacity_ *= kInvAlpha;
+        InitializeTable(capacity_);
+        for (auto iter = storage_.begin(); iter != storage_.end(); ++iter) {
+            table_[ApplyHash(iter->first)].push_back(iter);
         }
-
-        storage.clear();
-        table.clear();
-        initializeTable(capacity * inv_alpha);
-        numElements = 0;
-        for (auto &el : temp_list) {
-            insert(el);
-        }
-        temp_list.clear();
     }
 
 
@@ -72,67 +60,59 @@ public:
     using const_iterator = typename std::list<std::pair<const KeyType, ValueType>>::const_iterator;
 
 
-    explicit HashMap(Hash hasherObj = Hash()) : hasher(hasherObj) {
-        initializeTable();
+    explicit HashMap(Hash hasher_obj = Hash()) : hasher_(hasher_obj) {
+        InitializeTable();
     }
 
-    // Конструкторы не по умолчанию выполняются просто чередой инсертов.
+    // Constructors are implemented as a bunch of insertions.
     template<typename _ForwardIterator>
-    HashMap(_ForwardIterator begin, _ForwardIterator end, Hash hasherObj =
-            Hash()) : hasher(hasherObj){
-        initializeTable();
-        while (begin != end) {
-            insert(*begin);
-            ++begin;
+    HashMap(_ForwardIterator begin, _ForwardIterator end, Hash hasher_obj =
+    Hash()) : HashMap(hasher_obj){
+        for (auto it = begin; it != end; ++it) {
+            insert(*it);
         }
     }
 
     HashMap(std::initializer_list<std::pair<KeyType, ValueType>> list,
-            Hash hasherObj = Hash()) : hasher(hasherObj) {
-        initializeTable();
-        for (auto &el : list) {
-            insert(el);
-        }
-    }
+            Hash hasher_obj = Hash()) : HashMap(list.begin(), list.end(), hasher_obj) {}
 
-    // Проверям, есть ли в таблице такой ключ, если да, то ничего не делаем, иначе
-    // добавляем и делаем rehashing, если надо.
-    void insert(std::pair<KeyType, ValueType> obj) {
-        int hashed = applyHash(obj.first);
-        for (auto &el : table[hashed]) {
+    // Check if table contains the key and do nothing if it does, or add it.
+    iterator insert(std::pair<KeyType, ValueType> obj) {
+        int32_t hashed = ApplyHash(obj.first);
+        for (auto &el : table_[hashed]) {
             if (el->first == obj.first)
-                return;
+                return end();
         }
 
-        push_back(obj, hashed);
-        ++numElements;
+        push_back(obj);
+        ++num_elements_;
         update();
+        return std::prev(end());
     }
 
     void erase(KeyType toDel) {
-        int hashed = applyHash(toDel);
-        auto iter = table[hashed].begin();
-        for (; iter != table[hashed].end(); ++iter) {
+        int32_t hashed = ApplyHash(toDel);
+        for (auto iter = table_[hashed].begin(); iter != table_[hashed].end(); ++iter) {
             if ((*iter)->first == toDel) {
-                storage.erase(*iter);
-                table[hashed].erase(iter);
-                --numElements;
+                storage_.erase(*iter);
+                table_[hashed].erase(iter);
+                --num_elements_;
                 return;
             }
         }
 
     }
 
-    // Нужно для прохождения внутренних тестов.
-    HashMap& operator = (HashMap const &other) {
+    // Is required for internal tests.
+    HashMap& operator= (HashMap const &other) {
 
-        //Анти-самоприсваивание
+        //Anti-self-assignment.
         if (this == &other)
             return *this;
 
         clear();
-        hasher = other.hash_function();
-        initializeTable(other.capacity);
+        hasher_ = other.hash_function();
+        InitializeTable(other.capacity_);
         for (auto &el : other) {
             insert(el);
         }
@@ -140,8 +120,8 @@ public:
     }
 
     iterator find(KeyType key) {
-        int hashed = applyHash(key);
-        for (auto &el : table[hashed]) {
+        int32_t hashed = ApplyHash(key);
+        for (auto &el : table_[hashed]) {
             if (el->first == key)
                 return iterator(el);
         }
@@ -150,8 +130,8 @@ public:
     }
 
     const_iterator find(KeyType key) const {
-        int hashed = applyHash(key);
-        for (auto &el : table[hashed]) {
+        int32_t hashed = ApplyHash(key);
+        for (auto &el : table_[hashed]) {
             if (el->first == key)
                 return el;
         }
@@ -162,7 +142,7 @@ public:
     ValueType& operator[](KeyType key) {
         auto iter = find(key);
         if (iter == end()) {
-            // Если не нашли элемент, то вставляем значение по умолчанию
+            // Insert default value if an element was not found.
             insert({key, ValueType()});
             iter = find(key);
         }
@@ -177,37 +157,35 @@ public:
     }
 
     void clear() {
-        for (auto &p : storage) {
-            int hashed = applyHash(p.first);
-            table[hashed].clear();
-        }
-        storage.clear();
-        numElements = 0;
+        storage_.clear();
+        table_.clear();
+        InitializeTable();
+        num_elements_ = 0;
     }
 
     Hash hash_function() const {
-        return hasher;
+        return hasher_;
     }
 
-    int size() const {
-        return numElements;
+    int32_t size() const {
+        return num_elements_;
     }
 
     bool empty() const {
-        return !numElements;
+        return !num_elements_;
     }
 
     iterator begin() {
-        return iterator(storage.begin());
+        return iterator(storage_.begin());
     }
     iterator end() {
-        return iterator(storage.end());
+        return iterator(storage_.end());
     }
     const_iterator begin() const {
-        return storage.begin();
+        return storage_.begin();
     }
     const_iterator end() const {
-        return storage.end();
+        return storage_.end();
     }
 
     ~HashMap() {

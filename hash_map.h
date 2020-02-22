@@ -16,12 +16,16 @@
 
 template<class KeyType, class ValueType, class Hash = std::hash<KeyType> >
 class HashMap {
+public:
+    using iterator = typename std::list<std::pair<const KeyType, ValueType>>::iterator;
+    using const_iterator = typename std::list<std::pair<const KeyType, ValueType>>::const_iterator;
+
 private:
     std::list<std::pair<const KeyType, ValueType>> storage_;
     Hash hasher_;
     const int32_t kInvAlpha = 2;
     int32_t capacity_;
-    std::vector<std::list<typename std::list<std::pair<const KeyType, ValueType>>::iterator>> table_;
+    std::vector<std::list<iterator>> table_;
     int32_t num_elements_ = 0;
 
     int32_t ApplyHash(const KeyType obj) const {
@@ -30,11 +34,11 @@ private:
 
     void InitializeTable(const int32_t capacity = 16) {
         capacity_ = capacity;
-        table_ = std::vector<std::list<typename std::list<std::pair<const KeyType, ValueType>>::iterator>>(capacity_);
+        table_ = std::vector<std::list<iterator>>(capacity_);
     }
 
     // Method that is called when a new element, guaranteed not be in the table, is added.
-    void push_back(const std::pair<KeyType, ValueType> obj) {
+    void add_to_storage(const std::pair<KeyType, ValueType> obj) {
         int32_t hashed = ApplyHash(obj.first);
         storage_.push_back(obj);
         auto it = std::prev(storage_.end());
@@ -42,7 +46,7 @@ private:
     }
 
     // Performing rehashing
-    void update() {
+    void try_to_rehash() {
         if (num_elements_ * kInvAlpha < capacity_)
             return;
 
@@ -56,10 +60,6 @@ private:
 
 
 public:
-    using iterator = typename std::list<std::pair<const KeyType, ValueType>>::iterator;
-    using const_iterator = typename std::list<std::pair<const KeyType, ValueType>>::const_iterator;
-
-
     explicit HashMap(Hash hasher_obj = Hash()) : hasher_(hasher_obj) {
         InitializeTable();
     }
@@ -78,22 +78,20 @@ public:
 
     // Check if table contains the key and do nothing if it does, or add it.
     iterator insert(std::pair<KeyType, ValueType> obj) {
-        int32_t hashed = ApplyHash(obj.first);
-        for (auto &el : table_[hashed]) {
-            if (el->first == obj.first)
-                return end();
-        }
+        iterator iter = find(obj.first);
+        if (iter != end())
+            return iter;
 
-        push_back(obj);
+        add_to_storage(obj);
         ++num_elements_;
-        update();
+        try_to_rehash();
         return std::prev(end());
     }
 
-    void erase(KeyType toDel) {
-        int32_t hashed = ApplyHash(toDel);
+    void erase(KeyType to_del) {
+        int32_t hashed = ApplyHash(to_del);
         for (auto iter = table_[hashed].begin(); iter != table_[hashed].end(); ++iter) {
-            if ((*iter)->first == toDel) {
+            if ((*iter)->first == to_del) {
                 storage_.erase(*iter);
                 table_[hashed].erase(iter);
                 --num_elements_;
@@ -104,7 +102,7 @@ public:
     }
 
     // Is required for internal tests.
-    HashMap& operator= (HashMap const &other) {
+    HashMap& operator= (const HashMap &other) {
 
         //Anti-self-assignment.
         if (this == &other)
@@ -143,14 +141,13 @@ public:
         auto iter = find(key);
         if (iter == end()) {
             // Insert default value if an element was not found.
-            insert({key, ValueType()});
-            iter = find(key);
+            iter = insert({key, ValueType()});
         }
         return iter->second;
     }
 
     const ValueType& at(KeyType key) const {
-        auto iter = find(key);
+        const_iterator iter = find(key);
         if (iter == end())
             throw std::out_of_range("no such element");
         return iter->second;
@@ -172,7 +169,7 @@ public:
     }
 
     bool empty() const {
-        return !num_elements_;
+        return num_elements_ == 0;
     }
 
     iterator begin() {

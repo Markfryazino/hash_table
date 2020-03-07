@@ -21,6 +21,7 @@ public:
     using const_iterator = typename std::list<std::pair<const KeyType, ValueType>>::const_iterator;
 
 private:
+    using iter_vector = typename std::vector<std::list<iterator>>;
     std::list<std::pair<const KeyType, ValueType>> storage_;
     Hash hasher_;
     const int32_t kInvAlpha = 2;
@@ -34,7 +35,7 @@ private:
 
     void InitializeTable(const int32_t capacity = 16) {
         capacity_ = capacity;
-        table_ = std::vector<std::list<iterator>>(capacity_);
+        table_ = iter_vector(capacity_);
     }
 
     // Method that is called when a new element, guaranteed not be in the table, is added.
@@ -88,10 +89,10 @@ public:
         return std::prev(end());
     }
 
-    void erase(KeyType to_del) {
-        int32_t hashed = ApplyHash(to_del);
+    void erase(KeyType to_delete) {
+        int32_t hashed = ApplyHash(to_delete);
         for (auto iter = table_[hashed].begin(); iter != table_[hashed].end(); ++iter) {
-            if ((*iter)->first == to_del) {
+            if ((*iter)->first == to_delete) {
                 storage_.erase(*iter);
                 table_[hashed].erase(iter);
                 --num_elements_;

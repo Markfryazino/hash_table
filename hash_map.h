@@ -21,7 +21,7 @@ public:
     using const_iterator = typename std::list<std::pair<const KeyType, ValueType>>::const_iterator;
 
 private:
-    using iter_vector = typename std::vector<std::list<iterator>>;
+    using iterator_vector = typename std::vector<std::list<iterator>>;
     std::list<std::pair<const KeyType, ValueType>> storage_;
     Hash hasher_;
     const int32_t kInvAlpha = 2;
@@ -35,7 +35,7 @@ private:
 
     void InitializeTable(const int32_t capacity = 16) {
         capacity_ = capacity;
-        table_ = iter_vector(capacity_);
+        table_ = iterator_vector(capacity_);
     }
 
     // Method that is called when a new element, guaranteed not be in the table, is added.
